@@ -1,13 +1,19 @@
 "use client";
 
 export default function BetCard({ bet }: any) {
+    function calculatePayout(amount: number, odds: number) {
+        if (odds > 0) return amount + (amount * odds) / 100;
+        return amount + (amount * 100) / Math.abs(odds);
+    }
     const settleBets = async (id: number, result: string) => {
         await fetch("/api/bets/settle", {
             method: "POST",
-            body: JSON.stringify({ id: id, result: result })
+            body: JSON.stringify({ id: id, result: result, odds: bet.odds, amount: bet.amount})
         });
+
         window.location.reload();
     }
+
 
     return (
         <div>

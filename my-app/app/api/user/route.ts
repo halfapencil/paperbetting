@@ -1,6 +1,7 @@
 import {createClient} from "@/lib/supabase/client";
 
 const supabase = createClient();
+// Insert a new user to database. Simulates sign up
 export async function POST(req:Request){
     const body= await req.json();
     const {data,error} = await supabase.from("users").insert([body]);
