@@ -8,7 +8,7 @@ export default function BetCard({ bet }: any) {
     const settleBets = async (id: number, result: string) => {
         await fetch("/api/bets/settle", {
             method: "POST",
-            body: JSON.stringify({ id: id, result: result, odds: bet.odds, amount: bet.amount})
+            body: JSON.stringify({ id: id, result: result})
         });
 
         window.location.reload();
