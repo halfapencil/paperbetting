@@ -27,3 +27,4 @@ export type nbaPlayerStatRow = {
     pts: number;
     plusMinus: number;
 };
+

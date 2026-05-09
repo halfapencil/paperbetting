@@ -1,24 +1,75 @@
 "use client";
-import { useEffect, useState } from "react";
-import Select from "react-select";
+import { nbaPlayerStatRow } from "@/types/nbaPlayerStats";
 import styles from "../../styles/adminNBAGames.module.css";
 import NBAStatRow from "./NBAStatRow";
+import { EMPTY_NBA_STAT_ROW } from "@/lib/nba/emptyNBAStatRow";
+import { NBAParser } from "@/lib/NBAParser";
+import { Dispatch, SetStateAction } from "react";
+
+type NBAStatTableProps = {
+    title: string;
+    rows: nbaPlayerStatRow[];
+    setRows: Dispatch<SetStateAction<nbaPlayerStatRow[]>>;
+}
 // Table for adding box scores to database
 export default function NBAStatTable({
-    title
-}: { title: string }) {
-    
-    type TeamOptions = {
-        value: number;
-        label: string;
-    };
+    title,
+    rows,
+    setRows
+}: NBAStatTableProps) {
 
-    const [selectOptions, setSelectOptions] = useState<TeamOptions[]>([]);
+    const NUM_ROWS = 20;
+    const INITIAL_ROWS = Array.from({ length: NUM_ROWS }, () => ({ ...EMPTY_NBA_STAT_ROW }));
+    function updateRow(
+        index: number,
+        field: keyof nbaPlayerStatRow,
+        value: string | number
+    ) {
+        setRows((prevRows) => {
+            const updatedRows = [...prevRows];
 
+            updatedRows[index] = {
+                ...updatedRows[index],
+                [field]: value
+            };
+
+            return updatedRows;
+        });
+    }
+
+    function handlePaste(
+        e: React.ClipboardEvent<HTMLTableElement>
+    ) {
+        e.preventDefault();
+
+        const text =
+            e.clipboardData.getData("text");
+
+        const parsedRows = NBAParser(text);
+
+        const updatedRows = [...INITIAL_ROWS];
+
+        parsedRows.forEach((row, index) => {
+            if (index < updatedRows.length) {
+
+                const cleanedPlayerName =
+                    index < 5
+                        ? row.playerName.slice(0, -1)
+                        : row.playerName
+
+                updatedRows[index] = {
+                    ...row,
+                    playerName: cleanedPlayerName
+                };
+            }
+        });
+
+        setRows(updatedRows);
+    }
     return (
         <div>
             <div className={styles.adminTableWrapper}>
-                <table className={styles.adminTable}>
+                <table className={styles.adminTable} onPaste={handlePaste}>
                     <thead>
                         <tr>
                             <th className={styles.playerColumn}>Player Name</th>
@@ -45,9 +96,17 @@ export default function NBAStatTable({
                         </tr>
                     </thead>
                     <tbody>
+                        {rows.map((row, index) => (
+                            <NBAStatRow
+                                key={index}
+                                row={row}
+                                index={index}
+                                updateRow={updateRow}
+                            />
+                        ))}
                     </tbody>
                 </table>
             </div>
         </div>
-    )
+    );
 }

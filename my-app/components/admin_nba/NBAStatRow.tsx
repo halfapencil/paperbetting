@@ -1,5 +1,5 @@
 import { nbaPlayerStatRow } from "@/types/nbaPlayerStats";
-
+import { NBA_STAT_COLUMNS } from "@/lib/nba/nbaColumns";
 type NBAStatRowProps = {
     row: nbaPlayerStatRow;
     index: number;
@@ -17,9 +17,19 @@ export default function NBAStatRow({
 }: NBAStatRowProps) {
     return (
         <tr>
-            <td>
-                <input value={0} onChange={(e) => console.log(e)} />
-            </td>
+            {
+                NBA_STAT_COLUMNS.map((column) => (
+                    <td key={column.key}>
+                        <input
+                            value={row[column.key]}
+                            type="text"
+                            onChange={(e) =>
+                                updateRow(index, column.key, e.target.value)
+                            }
+                        />
+                    </td>
+                ))
+            }
         </tr>
     );
 }

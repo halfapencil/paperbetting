@@ -4,6 +4,8 @@ import { NBAParser } from "@/lib/NBAParser";
 import { useState, useEffect } from "react";
 import NBAStatTable from "./NBAStatTable";
 import Select from 'react-select';
+import { nbaPlayerStatRow } from "@/types/nbaPlayerStats";
+import { EMPTY_NBA_STAT_ROW } from "@/lib/nba/emptyNBAStatRow";
 // Component page for adding nba box scores
 export default function AdminNBAGames() {
     type TeamOptions = {
@@ -12,17 +14,18 @@ export default function AdminNBAGames() {
     };
 
     const [selectOptions, setSelectOptions] = useState<TeamOptions[]>([]);
-
     const NUM_ROWS = 20;
-    const BoxScoreTable = () => {
+    const INITIAL_ROWS = Array.from({ length: NUM_ROWS }, () => ({ ...EMPTY_NBA_STAT_ROW }));
 
-        const handlePaste = (e: ClipboardEvent) => {
-            e.preventDefault();
-            const text = e.clipboardData?.getData("text") || "";
-            const parsedRows = NBAParser(text);
-        }
-        return ("");
-    }
+    const [homeRows, setHomeRows] =
+        useState<nbaPlayerStatRow[]>(
+            INITIAL_ROWS.map(row => ({ ...row }))
+        );
+
+    const [awayRows, setAwayRows] =
+        useState<nbaPlayerStatRow[]>(
+            INITIAL_ROWS.map(row => ({ ...row }))
+        );
 
     async function getTeams() {
         const res = await fetch("http://localhost:3000/api/admin/nba_teams");
@@ -84,11 +87,31 @@ export default function AdminNBAGames() {
             display: "none",
         }),
     };
+
+    function clearTable() {
+        setHomeRows(
+            INITIAL_ROWS.map(row => ({ ...row }))
+        )
+        setAwayRows(
+            INITIAL_ROWS.map(row => ({ ...row }))
+        )
+    }
     return (
         <div>
             <div className={styles.selectWrapper}>
                 <Select options={selectOptions} placeholder="home" styles={darkSelectStyles}></Select>
                 <Select options={selectOptions} placeholder="away" styles={darkSelectStyles}></Select>
+            </div>
+            <button onClick={clearTable}> Clear Table</button>
+            <div>
+                <NBAStatTable
+                    title="home"
+                    rows={homeRows}
+                    setRows={setHomeRows} />
+                <NBAStatTable
+                    title="away"
+                    rows={awayRows}
+                    setRows={setAwayRows} />
             </div>
         </div>
     )
