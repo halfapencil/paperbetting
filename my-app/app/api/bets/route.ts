@@ -11,7 +11,7 @@ export async function POST(req: Request) {
         p_game_id: body.games_id
     })
     if (error) {
-        return new Response(JSON.stringify(error), { status: 400 });
+        return new Response(JSON.stringify(error), { status: 500 });
     }
 
     return Response.json({ success: true });

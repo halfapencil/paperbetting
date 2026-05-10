@@ -36,7 +36,12 @@ export default function NBAStatTable({
             return updatedRows;
         });
     }
-
+    
+    function normalizePlayerName(name: string) {
+        return name
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
     function handlePaste(
         e: React.ClipboardEvent<HTMLTableElement>
     ) {
@@ -53,10 +58,11 @@ export default function NBAStatTable({
             if (index < updatedRows.length) {
 
                 const cleanedPlayerName =
-                    index < 5
-                        ? row.playerName.slice(0, -1)
-                        : row.playerName
-
+                    normalizePlayerName(
+                        index < 5
+                            ? row.playerName.slice(0, -1)
+                            : row.playerName
+                    );
                 updatedRows[index] = {
                     ...row,
                     playerName: cleanedPlayerName
