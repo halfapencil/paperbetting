@@ -7,6 +7,7 @@ import NBAStatTable from "./NBAStatTable";
 import { nbaPlayerStatRow } from "@/types/nbaPlayerStats";
 import { EMPTY_NBA_STAT_ROW } from "@/lib/nba/emptyNBAStatRow";
 import dynamic from "next/dynamic";
+import { SingleValue } from "react-select";
 
 const Select = dynamic(
     () => import("react-select"),
@@ -22,9 +23,11 @@ export default function AdminNBAGames() {
     const [selectOptions, setSelectOptions] = useState<TeamOptions[]>([]);
     const [date, setDate] = useState("");
 
-    const [home, setHome] = useState<number | null>(null);
-    const [away, setAway] = useState<number | null>(null);
+    const [home, setHome] = useState<SingleValue<TeamOptions> | null>(null);
+    const [away, setAway] = useState<SingleValue<TeamOptions> | null>(null);
 
+    const [homeName, setHomeName] = useState<string | null>(null);
+    const [awayName, setAwayName] = useState<string | null>(null);
     const [insertError, setInsertError] = useState(false);
     const [inserted, setInserted] = useState(false);
 
@@ -114,32 +117,53 @@ export default function AdminNBAGames() {
     async function insertScores() {
         setInsertError(false);
         setInserted(false);
+
+
         const filteredHomeRows = homeRows.filter((row) => row.playerName.trimEnd() !== "");
         const filteredAwayRows = awayRows.filter((row) => row.playerName.trimEnd() !== "");
         const res = await fetch("http://localhost:3000/api/admin/nba_box_score", {
             method: 'POST',
-            body: JSON.stringify({ date: date, homeScores: filteredHomeRows, awayScores: filteredAwayRows, homeTeam: home, awayTeam: away })
+            body: JSON.stringify({ date: date, homeScores: filteredHomeRows, awayScores: filteredAwayRows, homeTeam: home?.value, awayTeam: away?.value })
         })
         // 500 is error
         if (res.status == 500) {
             setInsertError(true);
         } else if (res.status == 200) {
             setInserted(true)
+            setHomeName(home?.label ?? null);
+            setAwayName(away?.label ?? null);
         }
     }
     return (
         <div>
             <div className={styles.selectWrapper}>
-                <input type='date' value={date} onChange={(e) => setDate(e.target.value)}></input>
-
-                <Select options={selectOptions} placeholder="home" styles={darkSelectStyles} onChange={(e) => setHome(e?.value ?? null)}></Select>
-                <Select options={selectOptions} placeholder="away" styles={darkSelectStyles} onChange={(e) => setAway(e?.value ?? null)}></Select>
+                <input className={styles.dateInput}
+                    type='date' value={date} onChange={(e) => setDate(e.target.value)}></input>
+                    <h1>Home</h1>
+                <Select options={selectOptions} placeholder="home" styles={darkSelectStyles} onChange={(e) => { setHome(e) }}></Select>
+                    <h1>Away</h1>
+                <Select options={selectOptions} placeholder="away" styles={darkSelectStyles} onChange={(e) => { setAway(e) }}></Select>
             </div>
-            <button onClick={clearTable}> Clear Table</button> <br></br>
-            <button onClick={insertScores}> Insert Scores</button>
+            <div className="flex gap-3 mt-4">
+
+                <button
+                    onClick={clearTable}
+                    className="px-4 py-2 rounded-xl border border-red-500 text-red-400 hover:bg-red-500 hover:text-white transition"
+                >
+                    Clear Table
+                </button>
+
+                <button
+                    onClick={insertScores}
+                    className="px-4 py-2 rounded-xl bg-green-600 text-white hover:bg-green-700 transition"
+                >
+                    Insert Scores
+                </button>
+
+            </div>
             {insertError && <h1>Insert Error</h1>}
             <br></br>
-            {inserted && <h1>{home} vs {away}</h1>}
+            {inserted && <h1>Most Recently inserted: {homeName} vs {awayName}</h1>}
             <div>
                 <NBAStatTable
                     title="home"
