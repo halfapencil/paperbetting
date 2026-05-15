@@ -8,7 +8,7 @@ import { nbaPlayerStatRow } from "@/types/nbaPlayerStats";
 import { EMPTY_NBA_STAT_ROW } from "@/lib/nba/emptyNBAStatRow";
 import dynamic from "next/dynamic";
 import { SingleValue } from "react-select";
-
+import { darkSelectStyles } from "@/styles/darkSelectStyle";
 const Select = dynamic(
     () => import("react-select"),
     { ssr: false }
@@ -58,54 +58,6 @@ export default function AdminNBAGames() {
     }
     useEffect(() => { getTeams(); }, []);
 
-    const darkSelectStyles = {
-        control: (provided: any, state: any) => ({
-            ...provided,
-            backgroundColor: "#111827",
-            borderColor: state.isFocused ? "#3b82f6" : "#374151",
-            boxShadow: "none",
-            minHeight: "42px",
-            color: "white",
-        }),
-
-        menu: (provided: any) => ({
-            ...provided,
-            backgroundColor: "#111827",
-            border: "1px solid #374151",
-        }),
-
-        option: (provided: any, state: any) => ({
-            ...provided,
-            backgroundColor: state.isFocused ? "#1e293b" : "#111827",
-            color: "white",
-            cursor: "pointer",
-        }),
-
-        singleValue: (provided: any) => ({
-            ...provided,
-            color: "white",
-        }),
-
-        input: (provided: any) => ({
-            ...provided,
-            color: "white",
-        }),
-
-        placeholder: (provided: any) => ({
-            ...provided,
-            color: "#9ca3af",
-        }),
-
-        dropdownIndicator: (provided: any) => ({
-            ...provided,
-            color: "#9ca3af",
-        }),
-
-        indicatorSeparator: () => ({
-            display: "none",
-        }),
-    };
-
     function clearTable() {
         setHomeRows(
             INITIAL_ROWS.map(row => ({ ...row }))
@@ -139,9 +91,9 @@ export default function AdminNBAGames() {
             <div className={styles.selectWrapper}>
                 <input className={styles.dateInput}
                     type='date' value={date} onChange={(e) => setDate(e.target.value)}></input>
-                    <h1>Home</h1>
+                <h1>Home</h1>
                 <Select options={selectOptions} placeholder="home" styles={darkSelectStyles} onChange={(e) => { setHome(e) }}></Select>
-                    <h1>Away</h1>
+                <h1>Away</h1>
                 <Select options={selectOptions} placeholder="away" styles={darkSelectStyles} onChange={(e) => { setAway(e) }}></Select>
             </div>
             <div className="flex gap-3 mt-4">
