@@ -47,13 +47,24 @@ async function retrieveGames(start: any, end: any) {
         body: JSON.stringify({ start: start, end: end })
     })
     const data = await res.json();
+
     return (data.data ?? data).map((game: any) => ({
         id: game.games_id,
-        start: new Date(game.date_played),
-        end: new Date(game.date_played),
-        title: `${game.home_team_abbrev} VS ${game.away_team_abbrev}`
-    }))
 
+        start: moment(game.date_played)
+            .hour(12)
+            .minute(0)
+            .toDate(),
+
+        end: moment(game.date_played)
+            .hour(13)
+            .minute(0)
+            .toDate(),
+
+        title: `${game.home_team_abbrev} VS ${game.away_team_abbrev}`,
+
+        allDay: false
+    }))
 }
 
 function Selectable({ setOpen, setSelectedSlot, setDate, setDateString, setDateRange, games, setGames }: any) {
@@ -99,12 +110,10 @@ function Selectable({ setOpen, setSelectedSlot, setDate, setDateString, setDateR
                         start = range.start
                         end = range.end
                     }
-
                     // Add next day to the day range
                     if (moment(end).isSame(moment(start), "day")) {
-                        end = moment(start).add(1, "day").toDate()
+                        end = moment(start).add(1, "hour").toDate()
                     }
-
                     setDateRange({
                         start: moment(start).format("YYYY-MM-DD"),
                         end: moment(end).format("YYYY-MM-DD")

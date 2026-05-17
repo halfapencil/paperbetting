@@ -3,7 +3,7 @@ import { nbaPlayerStatRow } from "@/types/nbaPlayerStats";
 import styles from "../../styles/adminNBAGames.module.css";
 import NBAStatRow from "./NBAStatRow";
 import { EMPTY_NBA_STAT_ROW } from "@/lib/nba/emptyNBAStatRow";
-import { NBAParser } from "@/lib/NBAParser";
+import { NBAParser } from "@/lib/services/NBAParser";
 import { Dispatch, SetStateAction } from "react";
 
 type NBAStatTableProps = {

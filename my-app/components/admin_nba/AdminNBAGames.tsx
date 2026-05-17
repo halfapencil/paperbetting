@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "../../styles/adminNBAGames.module.css";
-import { NBAParser } from "@/lib/NBAParser";
+import { NBAParser } from "@/lib/services/NBAParser";
 import { useState, useEffect } from "react";
 import NBAStatTable from "./NBAStatTable";
 import { nbaPlayerStatRow } from "@/types/nbaPlayerStats";
