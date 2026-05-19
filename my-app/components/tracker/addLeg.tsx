@@ -9,6 +9,7 @@ type Leg = {
     market: string
     result: string
     betType: string
+    payout: number
 }
 
 type Props = {
@@ -96,7 +97,7 @@ export default function AddLeg({ form, setForm, date }: Props) {
                     styles={darkSelectStyles}
                 />
             </div>
-            <div className='grid grid-cols-2 mb-4'>
+            <div className='grid grid-cols-3 mb-4'>
                 <input className="ml-4 border border-gray-300 ml-4"
                     type='number'
                     placeholder='Line'
