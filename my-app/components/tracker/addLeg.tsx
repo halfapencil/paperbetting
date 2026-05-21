@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { darkSelectStyles } from '@/styles/darkSelectStyle';
+import { Darumadrop_One } from 'next/font/google';
 type Leg = {
     games_id: number
     amount: number
@@ -14,10 +15,11 @@ type Leg = {
 
 type Props = {
     form: Leg,
-    setForm: React.Dispatch<React.SetStateAction<Leg>>
-    date: string
+    setForm: React.Dispatch<React.SetStateAction<Leg[]>>
+    date: string,
+    index: number,
+    games: any
 }
-
 const MARKETS_OPTIONS = [
     { value: "NBA", label: "NBA" }
 ]
@@ -28,23 +30,20 @@ const TYPE_OPTIONS = [
     { value: "spread", label: "Spread" }
 ]
 
-export default function AddLeg({ form, setForm, date }: Props) {
-
-    function getGames() {
-        return (date);
-    }
-
+export default function AddLeg({ form, setForm, date, games }: Props) {
+    const [homeTeam, setHomeTeam] = useState("");
+    const [awayTeam, setAwayTeam] = useState("");
     function renderBetOptions() {
         switch (form.betType) {
             case "moneyline":
                 return (
                     <>
                         <button className='bg-red-800 rounded-2xl p-4 mr-1'>
-                            Lakers
+                            {homeTeam}
                         </button>
 
                         <button className='bg-green-800 rounded-2xl p-4 ml-1'>
-                            Celtics
+                            {awayTeam}
                         </button>
                     </>)
             case "prop":
@@ -76,28 +75,50 @@ export default function AddLeg({ form, setForm, date }: Props) {
     return (
         <div className="justify-center">
             <div className='grid grid-cols-3'>
-                <Select className="mb-4 ml-4" options={MARKETS_OPTIONS}
+                <Select className="mb-4 ml-4"
+                    options={MARKETS_OPTIONS}
                     styles={darkSelectStyles}
                     defaultValue={MARKETS_OPTIONS[0]}
                     placeholder="Market"
-                    onChange={(e) => setForm(prev => ({
-                        ...prev,
-                        market: e?.value || ""
-                    }))} />
-                <Select className="mb-4 ml-4" placeholder=" Type"
+                    onChange={(e) => setForm(prev =>
+                        prev.map((leg, index) =>
+                            index === 0
+                                ? { ...leg, market: e?.value || "" }
+                                : leg
+                        )
+                    )} />
+                <Select
+                    className="mb-4 ml-4"
+                    placeholder="Type"
                     styles={darkSelectStyles}
-
-                    defaultValue={TYPE_OPTIONS}
+                    defaultValue={TYPE_OPTIONS[0]}
                     options={TYPE_OPTIONS}
-                    onChange={(e) => setForm(prev => ({
-                        ...prev,
-                        betType: e?.value || ""
-                    }))} />
+                    onChange={(e) =>
+                        setForm(prev =>
+                            prev.map((leg, index) =>
+                                index === 0
+                                    ? {
+                                        ...leg,
+                                        betType: e?.value || ""
+                                    }
+                                    : leg
+                            )
+                        )
+                    }
+                />
                 <Select className="mb-4 ml-4" placeholder="Game"
+                    options={games}
                     styles={darkSelectStyles}
+                    onChange={(e: any) => {
+                        setHomeTeam(e?.home ?? "");
+                        setAwayTeam(e?.away ?? "");
+                    }}
                 />
             </div>
             <div className='grid grid-cols-3 mb-4'>
+                {//Render players from a team.
+
+                }
                 <input className="ml-4 border border-gray-300 ml-4"
                     type='number'
                     placeholder='Line'

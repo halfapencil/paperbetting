@@ -23,6 +23,7 @@ type Leg = {
     betType: string
     payout: number
 }
+
 type parlay = {
     legs: bet[],
     totalOdds: number
@@ -30,17 +31,15 @@ type parlay = {
 type Game = {
     id: number
     title: string
+    home_team: number,
+    away_team: number,
+    date: string,
+    home_team_abbrev: string,
+    away_team_abbrev: string
     start: Date
     end: Date
 }
-const myEventsList = [
-    {
-        id: 1,
-        title: 'Long Event',
-        start: new Date(2026, 4, 10),
-        end: new Date(2026, 4, 10),
-    }
-]
+const MAX_LEGS = 10;
 async function retrieveGames(start: any, end: any) {
     const res = await fetch("http://localhost:3000/api/admin/nba_games", {
         method: "POST",
@@ -49,8 +48,12 @@ async function retrieveGames(start: any, end: any) {
     const data = await res.json();
 
     return (data.data ?? data).map((game: any) => ({
-        id: game.games_id,
-
+        id: game.id,
+        home_team: game.home_team_id,
+        away_team: game.away_team_id,
+        home_team_abbrev: game.home_team_abbrev,
+        away_team_abbrev: game.away_team_abbrev,
+        date: game.date_played,
         start: moment(game.date_played)
             .hour(12)
             .minute(0)
@@ -67,13 +70,24 @@ async function retrieveGames(start: any, end: any) {
     }))
 }
 
-function Selectable({ setOpen, setSelectedSlot, setDate, setDateString, setDateRange, games, setGames }: any) {
+function Selectable({ setOpen, setSelectedSlot, setDate, date, setDateString, setDateRange, games, setGames, setGameOptions }: any) {
 
     const onSelectSlot = useCallback((slotInfo: any) => {
         setSelectedSlot(slotInfo);
         setOpen(true);
         setDateString(slotInfo.slots[0].toDateString());
         setDate(moment(slotInfo.slots[0]).format("YYYY-MM-DD"));
+        const gameOptions = games
+            .filter((game: { date: string; }) =>
+                game.date === moment(slotInfo.slots[0]).format("YYYY-MM-DD")
+            )
+            .map((game: { id: any; away_team_abbrev: any; home_team_abbrev: any; }) => ({
+                value: game.id,
+                label: `${game.away_team_abbrev} @ ${game.home_team_abbrev}`,
+                home: game.home_team_abbrev,
+                away: game.away_team_abbrev
+            }))
+        setGameOptions(gameOptions);
     }, [])
 
     return (
@@ -124,9 +138,7 @@ function Selectable({ setOpen, setSelectedSlot, setDate, setDateString, setDateR
         </div>
     )
 }
-function submitBets() {
-    //send to backend, retrieve game, automatically settle bets.
-}
+
 export default function BetTracker() {
 
     const profit = 150;
@@ -134,10 +146,35 @@ export default function BetTracker() {
     const [selectedSlot, setSelectedSlot] = useState<any>(null);
     const [bets, setBets] = useState<bet[]>([]);
     const [newForm, setNewForm] = useState(false);
+    const [legs, setLegs] = useState<Leg[]>([
+        {
+            games_id: 0,
+            amount: 0,
+            odds: 0,
+            line: 0,
+            market: "",
+            result: "pending",
+            betType: "moneyline",
+            payout: 0
+        }
+    ])
+    const [gameOptions, setGameOptions] = useState<Game[]>([]);
+
     const [dateRange, setDateRange] = useState({});
     const [dateString, setDateString] = useState("");
     const [date, setDate] = useState("");
-
+    const emptyBets = [
+        {
+            games_id: 0,
+            amount: 0,
+            odds: 0,
+            line: 0,
+            market: "",
+            result: "pending",
+            betType: "moneyline",
+            payout: 0
+        }
+    ]
     const [games, setGames] = useState<Game[]>([])
 
     useEffect(() => {
@@ -160,19 +197,16 @@ export default function BetTracker() {
                 setGames(games)
             })
     }, [])
-    const [form, setForm] = useState<Leg>({
-        games_id: 0,
-        amount: 0,
-        odds: 0,
-        line: 0,
-        market: "",
-        result: "pending",
-        betType: "",
-        payout: 0
-    });
-    return (
 
+    async function submitBets() {
+        await fetch("http://localhost:3000/api/tracker/submit", {
+            method: "POST",
+            body: JSON.stringify({ bets: legs })
+        })
+    }
+    return (
         <div>
+            <button onClick={() => console.log(games)}> debug</button>
             {open && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
                     <div className="bg-[#111827] rounded-2xl p-6 border border-gray-800 shadow-2xl">
@@ -183,18 +217,54 @@ export default function BetTracker() {
                             ))}
                         </div>
                         <div>
-                            {newForm && <div><AddLeg form={form} setForm={setForm} date={date} /></div>
+                            {newForm &&
+                                legs.map((leg, index) => (
+                                    <AddLeg
+                                        key={index}
+                                        form={leg}
+                                        index={index}
+                                        setForm={setLegs}
+                                        date={date}
+                                        games={gameOptions}
+                                    />
+                                ))
                             }
                         </div>
                         <div className="grid grid-cols-2 border border-green-600 bg-green-900 rounded-2xl p-4" onClick={() => { setNewForm(true) }}>
                             <Plus />
-                            <h1>Add leg</h1>
+                            <h1 onClick={() =>
+                                setLegs(prev => {
+                                    if (prev.length >= MAX_LEGS) {
+                                        return prev
+                                    }
+
+                                    return [
+                                        ...prev,
+                                        {
+                                            games_id: 0,
+                                            amount: 0,
+                                            odds: 0,
+                                            line: 0,
+                                            market: "",
+                                            result: "pending",
+                                            betType: "",
+                                            payout: 0
+                                        }
+                                    ]
+                                })
+                            }>Add leg</h1>
                         </div>
-                        < button
-                            onClick={() => { setNewForm(false); setOpen(false); }}
-                            className="mt-4 bg-red-500 px-4 py-2 rounded-lg text-white">
-                            Close
-                        </button>
+                        <div className='grid grid-cols-2'>
+                            < button
+                                onClick={() => { setNewForm(false); setOpen(false); setLegs(emptyBets) }}
+                                className="mt-4 bg-red-500 px-4 py-2 rounded-lg text-white">
+                                Close
+                            </button>
+                            <button className='mt-4 bg-green-500 px-4 py-2 rounded-lg text-white'
+                                onClick={() => submitBets()}>
+                                Submit
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -246,10 +316,12 @@ export default function BetTracker() {
                     setOpen={setOpen}
                     setSelectedSlot={setSelectedSlot}
                     setDate={setDate}
+                    date={date}
                     setDateString={setDateString}
                     setDateRange={setDateRange}
                     games={games}
-                    setGames={setGames} />
+                    setGames={setGames}
+                    setGameOptions={setGameOptions} />
             </div>
         </div >
     )
