@@ -13,4 +13,16 @@ export async function POST(req: Request) {
     }
     return Response.json(data);
 
+}
+
+// First and Last game nba
+export async function GET() {
+    const supabase = createClient();
+    const { data, error } = await supabase.rpc("get_distinct_date_played",{
+        p_market: "nba"
+    })
+    if (error) {
+        return new Response(JSON.stringify(error), { status: 500 })
+    }
+    return Response.json(data);
 } 

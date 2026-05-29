@@ -1,0 +1,31 @@
+teams_id,teams_name,teams_abrev,market
+1,Atlanta Hawks,ATL,nba
+2,Boston Celtics,BOS,nba
+3,Brooklyn Nets,BKN,nba
+4,Charlotte Hornets,CHA,nba
+5,Chicago Bulls,CHI,nba
+6,Cleveland Cavaliers,CLE,nba
+7,Dallas Mavericks,DAL,nba
+8,Denver Nuggets,DEN,nba
+9,Detroit Pistons,DET,nba
+10,Golden State Warriors,GSW,nba
+11,Houston Rockets,HOU,nba
+12,Indiana Pacers,IND,nba
+13,Los Angeles Clippers,LAC,nba
+14,Los Angeles Lakers,LAL,nba
+15,Memphis Grizzlies,MEM,nba
+16,Miami Heat,MIA,nba
+17,Milwaukee Bucks,MIL,nba
+18,Minnesota Timberwolves,MIN,nba
+19,New Orleans Pelicans,NOP,nba
+20,New York Knicks,NYK,nba
+21,Oklahoma City Thunder,OKC,nba
+22,Orlando Magic,ORL,nba
+23,Philadelphia 76ers,PHI,nba
+24,Phoenix Suns,PHX,nba
+25,Portland Trail Blazers,POR,nba
+26,Sacramento Kings,SAC,nba
+27,San Antonio Spurs,SAS,nba
+28,Toronto Raptors,TOR,nba
+29,Utah Jazz,UTA,nba
+30,Washington Wizards,WAS,nba

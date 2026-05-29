@@ -88,7 +88,7 @@ function Selectable({ setOpen, setSelectedSlot, setDate, date, setDateString, se
                 away: game.away_team_abbrev
             }))
         setGameOptions(gameOptions);
-    }, [])
+    }, [games])
 
     return (
         <div className='p-4 bg-black min-h-screen'>

@@ -30,7 +30,7 @@ const TYPE_OPTIONS = [
     { value: "spread", label: "Spread" }
 ]
 
-export default function AddLeg({ form, setForm, date, games }: Props) {
+export default function AddLeg({ form, setForm, date, games, index }: Props) {
     const [homeTeam, setHomeTeam] = useState("");
     const [awayTeam, setAwayTeam] = useState("");
     function renderBetOptions() {
@@ -109,6 +109,7 @@ export default function AddLeg({ form, setForm, date, games }: Props) {
                 <Select className="mb-4 ml-4" placeholder="Game"
                     options={games}
                     styles={darkSelectStyles}
+                    defaultValue={games[0]}
                     onChange={(e: any) => {
                         setHomeTeam(e?.home ?? "");
                         setAwayTeam(e?.away ?? "");
